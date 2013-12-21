@@ -8,37 +8,56 @@
         "./EventHandler", 
         "./OptionsManager"
     ], 
-    function (t, i, e) 
+    function (require, exports, module)
     {
-        function s(t) {
-            this.node = new o, 
-            this.eventInput = new n, 
-            this.eventOutput = new n, 
-            n.setInputHandler(this, this.eventInput), 
-            n.setOutputHandler(this, this.eventOutput), 
-            this.options = Object.create(this.constructor.DEFAULT_OPTIONS || s.DEFAULT_OPTIONS), 
-            this.optionsManager = new r(this.options), 
-            t && this.setOptions(t)
+        function View(t)
+        {
+            this.node = new RenderNode;
+            this.eventInput = new EventHandler;
+            this.eventOutput = new EventHandler;
+            EventHandler.setInputHandler(this, this.eventInput);
+            EventHandler.setOutputHandler(this, this.eventOutput);
+            this.options = Object.create(this.constructor.DEFAULT_OPTIONS || View.DEFAULT_OPTIONS);
+            this.optionsManager = new OptionsManager(this.options);
+            t && this.setOptions(t);
         }
 
-        var o = t("./RenderNode"),
-            n = t("./EventHandler"),
-            r = t("./OptionsManager");
+        var RenderNode = require("./RenderNode"),
+            EventHandler = require("./EventHandler"),
+            OptionsManager = require("./OptionsManager");
 
-        s.DEFAULT_OPTIONS = null, 
-        s.prototype.getOptions = function () {
-            return this.optionsManager.value()
-        }, s.prototype.setOptions = function (t) {
+        View.DEFAULT_OPTIONS = null;
+
+        View.prototype.getOptions = function ()
+        {
+            return this.optionsManager.value();
+        };
+
+        View.prototype.setOptions = function (t)
+        {
             this.optionsManager.patch(t)
-        }, s.prototype._add = function () {
-            return this.node.add.apply(this.node, arguments)
-        }, s.prototype._link = function () {
+        };
+
+        View.prototype._add = function ()
+        {
+            return this.node.add.apply(this.node, arguments);
+        };
+
+        View.prototype._link = function ()
+        {
             return this.node.link.apply(this.node, arguments)
-        }, s.prototype.render = function () {
+        };
+
+        View.prototype.render = function ()
+        {
             return this.node.render.apply(this.node, arguments)
-        }, s.prototype.getSize = function () {
+        };
+
+        View.prototype.getSize = function ()
+        {
             var t = this.node.get();
             return t.getSize ? t.getSize.apply(t, arguments) : this.options.size
-        }, e.exports = s;
+        };
+        module.exports = View;
 	}
 );
