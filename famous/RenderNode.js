@@ -20,9 +20,9 @@ define(
         }
 
         function o(t, i, e) {
-            var s = r.parse(t);
+            var s = SpecParser.parse(t);
             for (var a in s) {
-                var h = n.get(a),
+                var h = Entity.get(a),
                     u = s[a];
                 u.unshift(i);
                 var p = h.commit.apply(h, u);
@@ -30,8 +30,8 @@ define(
             }
         }
 
-        var n = require("./Entity");
-        var r = require("./SpecParser");
+        var Entity = require("./Entity");
+        var SpecParser = require("./SpecParser");
 
         require("./Matrix");
 
@@ -52,19 +52,21 @@ define(
                 var i = this.get();
                 i ? i instanceof Array ? this.modifiers.unshift(t) : (this.modifiers.unshift(i), this.set(t)) : this.set(t)
             }
-            return this
+            return this;
         };
 
         RenderNode.prototype.add = function (t)
         {
             this.get() instanceof Array || this.set([]);
             var i = new RenderNode(t);
-            return this.get().push(i), i;
+            this.get().push(i);
+            return i;
         };
 
         RenderNode.prototype.mod = function (t)
         {
-            return this.modifiers.push(t), this;
+            this.modifiers.push(t);
+            return this;
         };
 
         RenderNode.prototype.commit = function (t, i, e, s, r)
@@ -74,16 +76,21 @@ define(
             if (a !== !0) {
                 for (var h in this._prevResults)
                     if (!(h in this._resultCache)) {
-                        var u = n.get(h);
+                        var u = Entity.get(h);
                         u.cleanup && u.cleanup(t.getAllocator())
                     }
-                this._prevResults = this._resultCache, this._resultCache = {}, o({
-                    transform: i,
-                    size: r,
-                    origin: s,
-                    opacity: e,
-                    target: a
-                }, t, this._resultCache), this._hasCached = !0
+                this._prevResults = this._resultCache; this._resultCache = {};
+                o(
+                    {
+                        transform: i,
+                        size: r,
+                        origin: s,
+                        opacity: e,
+                        target: a
+                    },
+                    t,
+                    this._resultCache);
+                this._hasCached = !0;
             }
         };
 
