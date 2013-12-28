@@ -16,7 +16,8 @@ define(
             for (var i = 0; i < b.length; i++) b[i].call(this);
             for (b = []; x.length && Date.now() - t < _;) x.shift().call(this);
             for (var i = 0; i < S.length; i++) S[i].update();
-            O.emit("postrender"), requestAnimationFrame(s)
+            O.emit("postrender");
+            requestAnimationFrame(s);
         }
 
         function o(t) {

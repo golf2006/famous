@@ -6,8 +6,9 @@ define(
         "module"
     ], function (t, i, e) 
     {
-        var s = {};
-        s.Curve = {
+        var Utility = {};
+
+        Utility.Curve = {
             linear: function (t) {
                 return t
             },
@@ -26,11 +27,11 @@ define(
             spring: function (t) {
                 return (1 - t) * Math.sin(6 * Math.PI * t) + t
             }
-        }, s.Direction = {
+        }, Utility.Direction = {
             X: 0,
             Y: 1,
             Z: 2
-        }, s.Origin = {
+        }, Utility.Origin = {
             tl: [0, 0],
             t: [.5, 0],
             tr: [1, 0],
@@ -40,35 +41,35 @@ define(
             bl: [0, 1],
             b: [.5, 1],
             br: [1, 1]
-        }, s.after = function (t, i) {
+        }, Utility.after = function (t, i) {
             var e = t;
             return function () {
                 e--, 0 === e && i.apply(this, arguments)
             }
-        }, s.loadURL = function (t, i) {
+        }, Utility.loadURL = function (t, i) {
             var e = new XMLHttpRequest;
             e.onreadystatechange = function () {
                 4 == this.readyState && i && i(this.responseText)
             }, e.open("GET", t), e.send()
-        }, s.transformInFrontMatrix = [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 1, 1], s.transformInFront = {
+        }, Utility.transformInFrontMatrix = [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 1, 1], Utility.transformInFront = {
             render: function (t) {
                 return {
-                    transform: s.transformInFrontMatrix,
+                    transform: Utility.transformInFrontMatrix,
                     target: t
                 }
             }
-        }, s.transformBehindMatrix = [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, -1, 1], s.transformBehind = {
+        }, Utility.transformBehindMatrix = [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, -1, 1], Utility.transformBehind = {
             render: function (t) {
                 return {
-                    transform: s.transformBehindMatrix,
+                    transform: Utility.transformBehindMatrix,
                     target: t
                 }
             }
-        }, s.customizeComponent = function (t, i, e) {
+        }, Utility.customizeComponent = function (t, i, e) {
             var s = function (s) {
                 t.call(this, i), s && this.setOptions(s), e && e.call(this)
             };
             return s.prototype = Object.create(t.prototype), s
-        }, e.exports = s
+        }, e.exports = Utility
     }
 );

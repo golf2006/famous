@@ -21,18 +21,21 @@ define(
             this.set(t);
         }
 
-        function o() {
+        function next() {
             if (this._callback) {
                 var t = this._callback;
                 this._callback = void 0;
                 t();
             }
+
             if (this.actionQueue.length <= 0) {
                 this.set(this._engineInstance);
                 return void 0;
             }
+
             this.currentAction = this.actionQueue.shift();
             this._callback = this.callbackQueue.shift();
+
             var i = null;
             var e = this.currentAction[0];
             var s = this.currentAction[1];
@@ -52,7 +55,7 @@ define(
             }
 
             this._engineInstance.reset(this.state);
-            this._engineInstance.set(e, s, o.bind(this));
+            this._engineInstance.set(e, s, next.bind(this));
         }
 
         t("./Utility");
@@ -79,7 +82,7 @@ define(
             var s = [t, i];
             this.actionQueue.push(s);
             this.callbackQueue.push(e);
-            this.currentAction || o.call(this);
+            this.currentAction || next.call(this);
         };
 
         Transitionable.prototype.reset = function (t)
@@ -105,15 +108,21 @@ define(
             );
         };
 
-        Transitionable.prototype.get = function (t) {
-            return this._engineInstance && (this.state = this._engineInstance.get(t)), this.state
+        Transitionable.prototype.get = function (t)
+        {
+            if (this._engineInstance) {
+                this.state = this._engineInstance.get(t);
+            }
+            return this.state;
         };
 
-        Transitionable.prototype.isActive = function () {
+        Transitionable.prototype.isActive = function ()
+        {
             return !!this.currentAction
         };
 
-        Transitionable.prototype.halt = function () {
+        Transitionable.prototype.halt = function ()
+        {
             this.set(this.get())
         };
 
