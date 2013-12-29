@@ -90,8 +90,17 @@ define(
                     this.transformTranslateState.set(n.translate), this.transformRotateState.set(n.rotate), this.transformSkewState.set(n.skew), this.transformScaleState.set(n.scale), this._transformDirty = !1
                 }
                 var a = Matrix.interpret(t);
-                this.transformTranslateState.set(a.translate, i, s), this.transformRotateState.set(a.rotate, i, s), this.transformSkewState.set(a.skew, i, s), this.transformScaleState.set(a.scale, i, s)
-            } else this.transformTranslateState.halt(), this.transformRotateState.halt(), this.transformSkewState.halt(), this.transformScaleState.halt(), this._transformDirty = !0;
+                this.transformTranslateState.set(a.translate, i, s);
+                this.transformRotateState.set(a.rotate, i, s);
+                this.transformSkewState.set(a.skew, i, s);
+                this.transformScaleState.set(a.scale, i, s);
+            } else {
+                this.transformTranslateState.halt();
+                this.transformRotateState.halt();
+                this.transformSkewState.halt();
+                this.transformScaleState.halt();
+                this._transformDirty = !0;
+            }
             this._finalTransform = t
         };
 
