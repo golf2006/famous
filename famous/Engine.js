@@ -7,17 +7,39 @@ define(
 		"./Context", 
 		"./EventHandler"
 	], 
-	function (t, i, e) 
+	function (require, exports, module)
 	{
-        function s() {
-            var t = Date.now();
-            if (T && T > t - w) return requestAnimationFrame(s), void 0;
-            z = t - w, w = t, O.emit("prerender");
-            for (var i = 0; i < b.length; i++) b[i].call(this);
-            for (b = []; x.length && Date.now() - t < _;) x.shift().call(this);
-            for (var i = 0; i < S.length; i++) S[i].update();
-            O.emit("postrender");
-            requestAnimationFrame(s);
+        function render() {
+            var now = Date.now();
+
+            // if we haven't waited long enough to render this frame, skip this frame and go to the next one
+            if (minWait && minWait > now - lastTime) {
+                requestAnimationFrame(render);
+                return void 0;
+            }
+
+            timeSinceLastRender = now - lastTime;
+            lastTime = now;
+            engineEventHandler.emit("prerender");
+
+            for (var i = 0; i < nextTickFuncs.length; i++) {
+                nextTickFuncs[i].call(this);
+            }
+
+            nextTickFuncs = [];
+
+            while (deferredFuncs.length && Date.now() - now < TEN) {
+                deferredFuncs.shift().call(this);
+            }
+
+            // the actual rendering
+            for (var i = 0; i < S.length; i++) {
+                S[i].update();
+            }
+
+            engineEventHandler.emit("postrender");
+
+            requestAnimationFrame(render);
         }
 
         function o(t) {
@@ -26,93 +48,98 @@ define(
             }), void 0;
             window.scrollTo(0, 0);
             for (var i = 0; i < S.length; i++) S[i].emit("resize");
-            O.emit("resize")
+            engineEventHandler.emit("resize")
         }
 
-        function n(t) {
-            return O.pipe(t)
+        function pipe(t) {
+            return engineEventHandler.pipe(t)
         }
 
-        function r(t) {
-            return O.unpipe(t)
+        function unpipe(t) {
+            return engineEventHandler.unpipe(t)
         }
 
-        function a(t, i) {
-            O.on(t, i)
+        function on(t, i) {
+            engineEventHandler.on(t, i)
         }
 
-        function h(t, i) {
-            O.emit(t, i)
+        function emit(t, i) {
+            engineEventHandler.emit(t, i)
         }
 
-        function u(t, i) {
-            O.unbind(t, i)
+        function unbind(t, i) {
+            engineEventHandler.unbind(t, i)
         }
 
-        function p() {
-            return 1e3 / z
+        function getFPS() {
+            return 1e3 / timeSinceLastRender
         }
 
-        function c(t) {
-            T = Math.floor(1e3 / t)
+        function setFPSCap(t) {
+            minWait = Math.floor(1e3 / t)
         }
 
-        function l(t) {
+        function createContext(t) {
             void 0 === t ? (t = document.createElement("div"), t.classList.add("container"), document.body.appendChild(t)) : t instanceof Element || (t = document.createElement("div"), console.warn("Tried to create context on non-existent element"));
-            var i = new g(t);
+            var i = new Context(t);
             return S.push(i), i
         }
 
-        function f(t) {
-            b.push(t)
+        function nextTick(t) {
+            nextTickFuncs.push(t)
         }
 
-        function d(t) {
+        function getEntity(t) {
             return M[t]
         }
 
-        function m(t) {
+        function registerEntity(t) {
             var i = M.length;
             return M[i] = t, i
         }
 
-        function y(t) {
-            x.push(t)
+        function defer(t) {
+            deferredFuncs.push(t)
         }
 
-        var g = t("./Context"),
-            v = t("./EventHandler"),
+        var Context = require("./Context"),
+            EventHandler = require("./EventHandler"),
             S = [],
-            b = [],
-            x = [],
-            w = Date.now(),
-            z = void 0,
-            T = void 0,
-            O = new v,
-            _ = 10,
+            nextTickFuncs = [],
+            deferredFuncs = [],
+            lastTime = Date.now(),
+            timeSinceLastRender = void 0,
+            minWait = void 0,
+            engineEventHandler = new EventHandler,
+            TEN = 10,
             M = [];
-        requestAnimationFrame(s), window.addEventListener("resize", o, !1), o(), window.addEventListener("touchmove", function (t) {
-            t.preventDefault()
+        requestAnimationFrame(render);
+        window.addEventListener("resize", o, !1);
+        o();
+        window.addEventListener("touchmove", function (t)
+        {
+            t.preventDefault();
         }, !1);
+
         for (var C = ["touchstart", "touchmove", "touchend", "touchcancel", "click", "keydown", "keyup", "keypress", "mouseup", "mousedown", "mousemove", "mouseover", "mouseout", "mousewheel", "wheel", "resize"], P = 0; P < C.length; P++) {
             var k = C[P];
             document.body.addEventListener(k, function (t) {
-                O.emit(t.type, t, !1)
+                engineEventHandler.emit(t.type, t, !1)
             }, !1)
         }
-        e.exports = {
-            on: a,
-            defer: y,
-            emit: h,
-            unbind: u,
-            pipe: n,
-            unpipe: r,
-            createContext: l,
-            getFPS: p,
-            setFPSCap: c,
-            nextTick: f,
-            getEntity: d,
-            registerEntity: m
-        }
+        module.exports = {
+            on: on,
+            defer: defer,
+            emit: emit,
+            unbind: unbind,
+            pipe: pipe,
+            unpipe: unpipe,
+            createContext: createContext,
+            getFPS: getFPS,
+            setFPSCap: setFPSCap,
+            nextTick: nextTick,
+            getEntity: getEntity,
+            registerEntity: registerEntity
+        };
     }
 );

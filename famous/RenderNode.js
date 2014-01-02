@@ -19,14 +19,15 @@ define(
             this._prevResults = {};
         }
 
-        function o(t, i, e) {
-            var s = SpecParser.parse(t);
-            for (var a in s) {
+        function render(options, context, resultsCache)
+        {
+            var spec = SpecParser.parse(options);
+            for (var a in spec) {
                 var h = Entity.get(a),
-                    u = s[a];
-                u.unshift(i);
+                    u = spec[a];
+                u.unshift(context);
                 var p = h.commit.apply(h, u);
-                p ? o(p, i, e) : e[a] = u
+                p ? render(p, context, resultsCache) : resultsCache[a] = u
             }
         }
 
@@ -47,20 +48,40 @@ define(
 
         RenderNode.prototype.link = function (t)
         {
-            if (t instanceof Array) this.set(t);
+            if (t instanceof Array)
+            {
+                this.set(t);
+            }
             else {
                 var i = this.get();
-                i ? i instanceof Array ? this.modifiers.unshift(t) : (this.modifiers.unshift(i), this.set(t)) : this.set(t)
+                if (i) {
+                    if (i instanceof Array) {
+                        this.modifiers.unshift(t);
+                    } else {
+                        this.modifiers.unshift(i);
+                        this.set(t);
+                    }
+                } else
+                {
+                    this.set(t);
+                }
             }
             return this;
         };
 
-        RenderNode.prototype.add = function (t)
+        RenderNode.prototype.add = function (modifier)
         {
-            this.get() instanceof Array || this.set([]);
-            var i = new RenderNode(t);
-            this.get().push(i);
-            return i;
+            // check for default node array
+            if (!(this.get() instanceof Array))
+            {
+                this.set([]);
+            }
+
+            var newNode = new RenderNode(modifier);
+
+            this.get().push(newNode);
+
+            return newNode;
         };
 
         RenderNode.prototype.mod = function (t)
@@ -69,26 +90,32 @@ define(
             return this;
         };
 
-        RenderNode.prototype.commit = function (t, i, e, s, r)
+        RenderNode.prototype.commit = function (context, transform, opacity, origin, contextSize)
         {
-            var a = this.render(void 0, this._hasCached);
+            var target = this.render(void 0, this._hasCached);
 
-            if (a !== !0) {
-                for (var h in this._prevResults)
-                    if (!(h in this._resultCache)) {
-                        var u = Entity.get(h);
-                        u.cleanup && u.cleanup(t.getAllocator())
-                    }
-                this._prevResults = this._resultCache; this._resultCache = {};
-                o(
+            if (target !== true) {
+                for (var prevResult in this._prevResults)
+                {
+                    if (!(prevResult in this._resultCache))
                     {
-                        transform: i,
-                        size: r,
-                        origin: s,
-                        opacity: e,
-                        target: a
+                        var u = Entity.get(prevResult);
+                        u.cleanup && u.cleanup(context.getAllocator())
+                    }
+                }
+
+                this._prevResults = this._resultCache;
+                this._resultCache = {};
+
+                render(
+                    {
+                        transform: transform,
+                        size: contextSize,
+                        origin: origin,
+                        opacity: opacity,
+                        target: target
                     },
-                    t,
+                    context,
                     this._resultCache);
                 this._hasCached = !0;
             }
@@ -96,15 +123,29 @@ define(
 
         RenderNode.prototype.render = function (t)
         {
-            var i = t,
-                e = this.get();
-            if (e)
-                if (e.render) i = e.render(t);
-                else {
-                    var s = e.length - 1;
-                    for (i = new Array(s); s >= 0;) i[s] = e[s].render(), s--
+            var i = t;
+            var nodeArray = this.get();
+
+            if (nodeArray) {
+                if (nodeArray.render)
+                {
+                    i = nodeArray.render(t);
                 }
-            for (var o = this.modifiers.length, s = 0; o > s; s++) i = this.modifiers[s].render(i);
+                else {
+                    var count = nodeArray.length - 1;
+                    for (i = new Array(count); count >= 0;)
+                    {
+                        i[count] = nodeArray[count].render();
+                        count--;
+                    }
+                }
+            }
+
+            for (var modLength = this.modifiers.length, s = 0; modLength > s; s++)
+            {
+                i = this.modifiers[s].render(i);
+            }
+
             return i;
         };
 

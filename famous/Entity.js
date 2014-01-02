@@ -4,25 +4,30 @@ define(
 		"require", 
 		"exports", 
 		"module"
-	], function (t, i, e) {
-		function s(t) {
-		    var i = r.length;
-		    return n(i, t), i
+	], function (require, exports, module) {
+
+		function Entity(obj) {
+		    var currentIndex = store.length;
+            set(currentIndex, obj);
+		    return currentIndex;
 		}
 
-		function o(t) {
-		    return r[t]
+		function get(id)
+        {
+		    return store[id]
 		}
 
-		function n(t, i) {
-		    r[t] = i
+		function set(id, obj)
+        {
+		    store[id] = obj
 		}
 
-		var r = [];
-		e.exports = {
-		    register: s,
-		    get: o,
-		    set: n
+		var store = [];
+
+		module.exports = {
+		    register: Entity,
+		    get: get,
+		    set: set
 		}
     }
 );
