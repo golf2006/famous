@@ -37,7 +37,15 @@ define(
 
         CanvasSurface.prototype.deploy = function (t)
         {
-	        this.canvasSize && (t.width = this.canvasSize[0], t.height = this.canvasSize[1]), "2d" == this._contextId && (t.getContext(this._contextId).drawImage(this.backBuffer, 0, 0), this.backBuffer.width = 0, this.backBuffer.height = 0)
+            if (this.canvasSize) {
+                t.width = this.canvasSize[0];
+                t.height = this.canvasSize[1];
+            }
+            if ("2d" == this._contextId) {
+                t.getContext(this._contextId).drawImage(this.backBuffer, 0, 0);
+                this.backBuffer.width = 0;
+                this.backBuffer.height = 0;
+            }
 	    };
 
         CanvasSurface.prototype.recall = function (t)
