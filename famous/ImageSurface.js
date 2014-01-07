@@ -5,27 +5,44 @@ define(
 		"exports", 
 		"module", 
 		"./Surface"
-	], function (t, i, e) 
+	], function (require, exports, module)
 	{
-        function s() {
-            this.imageUrl = void 0, o.apply(this, arguments)
+        function ImageSurface()
+        {
+            this.imageUrl = void 0;
+            Surface.apply(this, arguments);
         }
 
-        var o = t("./Surface");
-        s.prototype = Object.create(o.prototype), 
-        s.prototype.surfaceEvents = o.prototype.surfaceEvents.concat(
+        var Surface = require("./Surface");
+
+        ImageSurface.prototype = Object.create(Surface.prototype);
+
+        ImageSurface.prototype.surfaceEvents = Surface.prototype.surfaceEvents.concat(
             [
                 "load"
             ]
-        ), 
-        s.prototype.elementType = "img", 
-        s.prototype.elementClass = "surface", 
-        s.prototype.setContent = function (t) {
-            this.imageUrl = t, this._contentDirty = !0
-        }, s.prototype.deploy = function (t) {
+        );
+
+        ImageSurface.prototype.elementType = "img";
+
+        ImageSurface.prototype.elementClass = "surface";
+
+        ImageSurface.prototype.setContent = function (imgUrl)
+        {
+            this.imageUrl = imgUrl;
+            this._contentDirty = true;
+        };
+
+        ImageSurface.prototype.deploy = function (t)
+        {
             t.src = this.imageUrl || ""
-        }, s.prototype.recall = function (t) {
+        };
+
+        ImageSurface.prototype.recall = function (t)
+        {
             t.src = ""
-        }, e.exports = s
+        };
+
+        module.exports = ImageSurface;
     }
 ); 

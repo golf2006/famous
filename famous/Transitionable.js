@@ -72,16 +72,16 @@ define(
             return t in a ? (delete a[t], true) : false;
         };
 
-        Transitionable.prototype.set = function (t, i, e)
+        Transitionable.prototype.set = function (transform, transition, callback)
         {
-            if (!i) {
-                this.reset(t);
-                e && e();
+            if (!transition) {
+                this.reset(transform);
+                callback && callback();
                 return void 0;
             }
-            var s = [t, i];
+            var s = [transform, transition];
             this.actionQueue.push(s);
-            this.callbackQueue.push(e);
+            this.callbackQueue.push(callback);
             this.currentAction || next.call(this);
         };
 

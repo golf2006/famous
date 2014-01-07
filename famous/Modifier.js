@@ -8,7 +8,7 @@ define(
 		"./Transitionable", 
 		"./Utility"
 	], 
-	function (t, i, e) 
+	function (require, exports, module)
 	{
         function Modifier(options)
         {
@@ -58,9 +58,9 @@ define(
             this.setSize(size);
         }
 
-        var Matrix = t("./Matrix");
-        var Transitionable = t("./Transitionable");
-        var Utility = t("./Utility");
+        var Matrix = require("./Matrix");
+        var Transitionable = require("./Transitionable");
+        var Utility = require("./Utility");
 
         Modifier.prototype.getTransform = function ()
         {
@@ -81,19 +81,24 @@ define(
             return this._finalTransform
         };
 
-        Modifier.prototype.setTransform = function (t, i, e)
+        Modifier.prototype.setTransform = function (transform, transition, callback)
         {
-            var s = e ? Utility.after(4, e) : void 0;
-            if (i) {
-                if (this._transformDirty) {
+            var transformStateCallback = callback ? Utility.after(4, callback) : void 0;
+            if (transition) {
+                if (this._transformDirty)
+                {
                     var n = Matrix.interpret(this.getFinalTransform());
-                    this.transformTranslateState.set(n.translate), this.transformRotateState.set(n.rotate), this.transformSkewState.set(n.skew), this.transformScaleState.set(n.scale), this._transformDirty = !1
+                    this.transformTranslateState.set(n.translate);
+                    this.transformRotateState.set(n.rotate);
+                    this.transformSkewState.set(n.skew);
+                    this.transformScaleState.set(n.scale);
+                    this._transformDirty = !1;
                 }
-                var a = Matrix.interpret(t);
-                this.transformTranslateState.set(a.translate, i, s);
-                this.transformRotateState.set(a.rotate, i, s);
-                this.transformSkewState.set(a.skew, i, s);
-                this.transformScaleState.set(a.scale, i, s);
+                var a = Matrix.interpret(transform);
+                this.transformTranslateState.set(a.translate, transition, transformStateCallback);
+                this.transformRotateState.set(a.rotate, transition, transformStateCallback);
+                this.transformSkewState.set(a.skew, transition, transformStateCallback);
+                this.transformScaleState.set(a.scale, transition, transformStateCallback);
             } else {
                 this.transformTranslateState.halt();
                 this.transformRotateState.halt();
@@ -101,7 +106,7 @@ define(
                 this.transformScaleState.halt();
                 this._transformDirty = !0;
             }
-            this._finalTransform = t
+            this._finalTransform = transform
         };
 
         Modifier.prototype.getOpacity = function ()
@@ -119,9 +124,18 @@ define(
             return this._originEnabled ? this.originState.get() : void 0
         };
 
-        Modifier.prototype.setOrigin = function (t, i, e)
+        Modifier.prototype.setOrigin = function (origin, i, e)
         {
-            this._originEnabled = !! t, t || (t = [0, 0]), t instanceof Array || (t = Utility.origins[t]), this.originState.set(t, i, e)
+            this._originEnabled = !!origin;
+
+            if (!origin) {
+                origin = [0, 0];
+            }
+            if (!(origin instanceof Array)) {
+                    origin = Utility.origins[origin];
+            }
+
+            this.originState.set(origin, i, e);
         };
 
         Modifier.prototype.getSize = function ()
@@ -169,9 +183,9 @@ define(
                 origin: this.getOrigin(),
                 size: this.getSize(),
                 target: t
-            }
+            };
         };
 
-        e.exports = Modifier;
+        module.exports = Modifier;
     }
 );

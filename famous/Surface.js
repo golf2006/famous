@@ -297,7 +297,8 @@ define("famous/Surface",
 
         Surface.prototype.setSize = function (t)
         {
-            this.size = t ? t.slice(0, 2) : void 0, this._sizeDirty = !0
+            this.size = t ? t.slice(0, 2) : void 0;
+            this._sizeDirty = !0
         };
 
         module.exports = Surface;

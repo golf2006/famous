@@ -78,6 +78,6 @@ define(
             SHIFT: 16,
             TAB: 9
         };
-        e.exports = s
+        e.exports = s;
     }
 ); 
